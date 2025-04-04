@@ -101,12 +101,16 @@ class App extends Component {
       const polls = await fetchPolls();
       const userPolls = polls.filter(poll => poll.createdBy === username);
       this.setState({ userPolls, isLoading: false });
+      console.log('Polls loaded successfully:', polls);
+      console.log('User polls:', userPolls);
     } catch (error) {
-      this.setState({
-        error: `Failed to load polls: ${error.message}`,
-        isLoading: false
-      });
       console.error('Failed to load user polls:', error);
+      // Still set userPolls to an empty array even if there's an error
+      this.setState({
+        error: `Note: ${error.message}. You can create a new poll.`,
+        isLoading: false,
+        userPolls: []
+      });
     }
   };
 

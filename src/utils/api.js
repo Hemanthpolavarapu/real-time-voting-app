@@ -9,13 +9,27 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
  */
 export const fetchPolls = async () => {
   try {
-    const response = await fetch(`${API_URL}/polls`);
+    console.log('Fetching polls from:', `${API_URL}/polls`);
+    console.log('Current API_URL:', API_URL);
+    
+    const response = await fetch(`${API_URL}/polls`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch polls: ${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    console.log('Fetched polls data:', data);
+    return data;
   } catch (error) {
     console.error('Error fetching polls:', error);
     throw error;
