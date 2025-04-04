@@ -1,70 +1,69 @@
-# Getting Started with Create React App
+# Real-Time Voting App Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time voting application frontend built with React and Socket.IO. This application allows users to create polls, share them with others, and see real-time voting results.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Create polls with multiple options
+- Join existing polls using a unique poll ID
+- Vote on poll options
+- View real-time results with automatic updates
+- Share polls with others
+- User authentication with username
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Clone the repository
+```bash
+git clone https://github.com/Hemanthpolavarapu/real-time-voting-app.git
+cd real-time-voting-app
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. Install dependencies
+```bash
+npm install
+```
 
-### `npm test`
+3. Create a `.env` file in the root directory with the following variables:
+```
+REACT_APP_API_URL=https://voting-api-backend.onrender.com/api
+PORT=3000
+REACT_APP_USERNAME="your_default_username"
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. Start the development server
+```bash
+npm start
+```
 
-### `npm run build`
+The application will be available at http://localhost:3000
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Usage
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. **Login**: Enter your username to access the application
+2. **Create a Poll**: Click "Create Poll" in the navigation bar, fill out the form with your question and options
+3. **Join a Poll**: Click "Join Poll" in the navigation bar, enter the poll ID
+4. **Vote**: Select an option in a poll and click "Submit Vote"
+5. **View Results**: Results are displayed after voting and update in real-time
+6. **Share Poll**: Copy the share link to allow others to join your poll
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Technologies Used
 
-### `npm run eject`
+- React.js
+- Socket.IO Client
+- CSS for styling
+- Environment variables for configuration
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Backend API
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This frontend connects to a backend API. The backend repository is available at:
+[https://github.com/Hemanthpolavarapu/voting-api-backend](https://github.com/Hemanthpolavarapu/voting-api-backend)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Live Demo
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Frontend: [Coming Soon]
+- Backend API: [https://voting-api-backend.onrender.com/api](https://voting-api-backend.onrender.com/api)
 
-## Learn More
+## License
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+MIT
