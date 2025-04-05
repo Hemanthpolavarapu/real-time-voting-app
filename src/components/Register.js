@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { registerUser } from '../utils/api';
 
 class Register extends Component {
   state = {
@@ -42,18 +43,8 @@ class Register extends Component {
     this.setState({ isRegistering: true, error: null });
     
     try {
-      // For now, just simulate registration by storing in localStorage
-      // In a real app, this would be a call to your backend API
-      // await registerUser(username, email, password);
-      
-      // Check if username already exists
-      if (localStorage.getItem(`user_${username}`)) {
-        throw new Error('Username already exists');
-      }
-      
-      // Store user in localStorage (this is a simplified example)
-      const user = { username, email, password };
-      localStorage.setItem(`user_${username}`, JSON.stringify(user));
+      // Call the backend API to register the user
+      await registerUser({ username, email, password });
       
       // Call the parent's onRegister method
       this.props.onRegister(username);

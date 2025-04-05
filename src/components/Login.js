@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { loginUser } from '../utils/api';
 
 class Login extends Component {
   state = {
@@ -30,23 +31,8 @@ class Login extends Component {
     this.setState({ isLoggingIn: true, error: null });
     
     try {
-      // For now, just simulate login with localStorage
-      // In a real app, this would be a call to your backend API
-      // await loginUser(username, password);
-      
-      // Check if user exists
-      const userData = localStorage.getItem(`user_${username}`);
-      
-      if (!userData) {
-        throw new Error('User not found');
-      }
-      
-      const user = JSON.parse(userData);
-      
-      // Check password
-      if (user.password !== password) {
-        throw new Error('Incorrect password');
-      }
+      // Call the backend API to login
+      await loginUser({ username, password });
       
       // Call the parent's onLogin method
       this.props.onLogin(username);
