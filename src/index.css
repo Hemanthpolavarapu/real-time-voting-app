@@ -587,11 +587,25 @@ body {
   .app-nav {
     flex-direction: column;
     gap: 10px;
+    align-items: center;
+  }
+  
+  .user-section {
+    width: 100%;
+    justify-content: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   
   .user-info {
-    margin-top: 10px;
-    align-self: flex-end;
+    text-align: center;
+  }
+  
+  .logout-button {
+    margin: 0 auto;
   }
   
   .user-polls-list {
@@ -610,6 +624,16 @@ body {
   
   .copy-link-button {
     margin-top: 5px;
+  }
+  
+  .social-share-buttons {
+    flex-direction: column;
+  }
+  
+  .share-button {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
   }
 }
 

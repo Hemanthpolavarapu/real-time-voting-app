@@ -63,23 +63,55 @@ export const fetchPoll = async (pollId) => {
  * @param {string} pollData.createdBy - Username of poll creator
  */
 export const createPoll = async (pollData) => {
-  try {
-    const response = await fetch(`${API_URL}/polls`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(pollData),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to create poll: ${response.status}`);
+  let retries = 2; // Number of retries
+  
+  while (retries >= 0) {
+    try {
+      console.log(`Attempting to create poll. Retries left: ${retries}`);
+      console.log('Poll data:', pollData);
+      console.log('API URL:', `${API_URL}/polls`);
+      
+      const response = await fetch(`${API_URL}/polls`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(pollData),
+      });
+      
+      // Log response information for debugging
+      console.log('Response status:', response.status);
+      console.log('Response OK:', response.ok);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response:', errorData);
+        
+        if (response.status === 500) {
+          throw new Error('Server error. This may be temporary, please try again.');
+        } else {
+          throw new Error(`Failed to create poll: ${response.status} - ${errorData.error || 'Unknown error'}`);
+        }
+      }
+      
+      const data = await response.json();
+      console.log('Poll created successfully:', data);
+      return data;
+      
+    } catch (error) {
+      console.error('Error creating poll:', error);
+      
+      // If network error and we have retries left, try again
+      if ((error.name === 'TypeError' || error.message.includes('fetch')) && retries > 0) {
+        retries--;
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        continue;
+      }
+      
+      // No more retries or not a network error, throw the error
+      throw error;
     }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error creating poll:', error);
-    throw error;
   }
 };
 

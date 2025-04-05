@@ -200,15 +200,16 @@ class App extends Component {
     // Join the new poll's socket room for real-time updates
     joinPoll(poll.id);
     
-    // Check if user has already voted on this poll
+    // Check if user has already voted on this poll or is the creator
     const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '{}');
     const hasVoted = votedPolls[poll.id] === true;
+    const isCreator = poll.createdBy === this.state.username;
     
     this.setState({
       currentMode: APP_MODES.VIEW_POLL,
       activePoll: poll,
       results: poll.results,
-      showResults: hasVoted, // Show results if already voted
+      showResults: hasVoted || isCreator, // Show results if already voted or is creator
       lastUpdated: new Date()
     });
     
@@ -220,16 +221,27 @@ class App extends Component {
 
   // Handle user logout
   handleLogout = () => {
-    // Remove user from local storage
+    // Remove all user data from local storage
     localStorage.removeItem('votingAppUsername');
+    localStorage.removeItem('votedPolls');
     
-    // Reset state
+    // Reset state completely
     this.setState({
       username: '',
       currentMode: APP_MODES.LOGIN,
       activePoll: null,
-      userPolls: []
+      userPolls: [],
+      results: [],
+      isLoading: false,
+      error: null,
+      lastUpdated: new Date(),
+      showResults: false
     });
+    
+    // Clear poll ID from URL if present
+    const url = new URL(window.location);
+    url.search = '';
+    window.history.pushState({}, '', url);
   };
 
   // Navigate to different app modes
