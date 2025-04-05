@@ -389,6 +389,7 @@ body {
 .option-row {
   display: flex;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 .option-input {
@@ -397,16 +398,31 @@ body {
   border: 1px solid black;
   border-radius: 4px;
   font-size: 1rem;
+  height: 37px;
+  box-sizing: border-box;
 }
 
 .remove-option-btn {
   background-color: white;
   border: 1px solid #ff0000;
   color: #ff0000;
-  width: 30px;
+  width: 37px;
+  height: 37px;
   margin-left: 5px;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.remove-option-btn:hover {
+  background-color: #ff0000;
+  color: white;
 }
 
 .add-option-btn {
@@ -690,13 +706,19 @@ body {
     align-items: center;
   }
   
+  .option-input {
+    height: 37px;
+  }
+  
   .remove-option-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 38px;
-    width: 30px;
+    height: 37px;
+    width: 37px;
     font-size: 16px;
+    padding: 0;
+    line-height: 1;
   }
   
   .toggle-button,
