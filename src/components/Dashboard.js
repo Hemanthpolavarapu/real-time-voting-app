@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { fetchPolls } from '../utils/api';
+import { fetchPolls, deletePoll, togglePollActive } from '../utils/api';
 
 class Dashboard extends Component {
   state = {
@@ -10,7 +10,8 @@ class Dashboard extends Component {
       totalPolls: 0,
       totalVotes: 0,
       activePolls: 0
-    }
+    },
+    actionInProgress: null // To track which poll is currently being acted upon
   };
 
   componentDidMount() {
@@ -32,7 +33,7 @@ class Dashboard extends Component {
       const totalVotes = userPolls.reduce((total, poll) => {
         return total + poll.results.reduce((pollTotal, option) => pollTotal + option.votes, 0);
       }, 0);
-      const activePolls = userPolls.length; // In a real app, you might have a concept of active vs. expired polls
+      const activePolls = userPolls.filter(poll => poll.isActive).length;
       
       this.setState({
         userPolls,
@@ -69,9 +70,95 @@ class Dashboard extends Component {
     this.props.onNavigate('join_poll');
   };
 
+  // Handle poll deletion
+  handleDeletePoll = async (event, pollId) => {
+    // Prevent the click from bubbling up to the parent elements
+    event.stopPropagation();
+    
+    if (!window.confirm('Are you sure you want to delete this poll? This action cannot be undone.')) {
+      return;
+    }
+    
+    this.setState({ actionInProgress: pollId, error: null });
+    
+    try {
+      await deletePoll(pollId);
+      
+      // Update the local state to remove the deleted poll
+      this.setState(prevState => ({
+        userPolls: prevState.userPolls.filter(poll => poll.id !== pollId),
+        actionInProgress: null
+      }), () => {
+        // Recalculate stats after state update
+        const { userPolls } = this.state;
+        const totalPolls = userPolls.length;
+        const totalVotes = userPolls.reduce((total, poll) => {
+          return total + poll.results.reduce((pollTotal, option) => pollTotal + option.votes, 0);
+        }, 0);
+        const activePolls = userPolls.filter(poll => poll.isActive).length;
+        
+        this.setState({
+          stats: {
+            totalPolls,
+            totalVotes,
+            activePolls
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Failed to delete poll:', error);
+      this.setState({
+        error: `Failed to delete poll: ${error.message}`,
+        actionInProgress: null
+      });
+    }
+  };
+
+  // Handle toggling poll active status
+  handleToggleActive = async (event, pollId, currentStatus) => {
+    // Prevent the click from bubbling up to the parent elements
+    event.stopPropagation();
+    
+    const action = currentStatus ? 'pause' : 'activate';
+    if (!window.confirm(`Are you sure you want to ${action} this poll?`)) {
+      return;
+    }
+    
+    this.setState({ actionInProgress: pollId, error: null });
+    
+    try {
+      const result = await togglePollActive(pollId);
+      
+      // Update the poll in the local state
+      this.setState(prevState => ({
+        userPolls: prevState.userPolls.map(poll => 
+          poll.id === pollId ? { ...poll, isActive: result.isActive } : poll
+        ),
+        actionInProgress: null
+      }), () => {
+        // Recalculate stats after state update
+        const { userPolls } = this.state;
+        const activePolls = userPolls.filter(poll => poll.isActive).length;
+        
+        this.setState(prevState => ({
+          stats: {
+            ...prevState.stats,
+            activePolls
+          }
+        }));
+      });
+    } catch (error) {
+      console.error(`Failed to ${action} poll:`, error);
+      this.setState({
+        error: `Failed to ${action} poll: ${error.message}`,
+        actionInProgress: null
+      });
+    }
+  };
+
   render() {
     const { username } = this.props;
-    const { userPolls, isLoading, error, stats } = this.state;
+    const { userPolls, isLoading, error, stats, actionInProgress } = this.state;
 
     return (
       <div className="dashboard-container">
@@ -151,15 +238,36 @@ class Dashboard extends Component {
               {userPolls.map(poll => (
                 <div 
                   key={poll.id} 
-                  className="poll-card"
-                  onClick={() => this.handleViewPoll(poll)}
+                  className={`poll-card ${!poll.isActive ? 'poll-inactive' : ''}`}
                 >
-                  <h4>{poll.question}</h4>
-                  <p className="poll-meta">Created: {new Date(poll.createdAt).toLocaleDateString()}</p>
-                  <p className="poll-meta">Options: {poll.options.length}</p>
-                  <p className="poll-meta">
-                    Votes: {poll.results.reduce((total, option) => total + option.votes, 0)}
-                  </p>
+                  <div className="poll-card-content" onClick={() => this.handleViewPoll(poll)}>
+                    <h4>{poll.question}</h4>
+                    <p className="poll-meta">Created: {new Date(poll.createdAt).toLocaleDateString()}</p>
+                    <p className="poll-meta">Options: {poll.options.length}</p>
+                    <p className="poll-meta">
+                      Votes: {poll.results.reduce((total, option) => total + option.votes, 0)}
+                    </p>
+                    <p className="poll-meta">
+                      Status: {poll.isActive ? 'Active' : 'Paused'}
+                    </p>
+                  </div>
+                  
+                  <div className="poll-actions">
+                    <button 
+                      className={`toggle-button ${poll.isActive ? 'pause-button' : 'activate-button'}`}
+                      onClick={(e) => this.handleToggleActive(e, poll.id, poll.isActive)}
+                      disabled={actionInProgress === poll.id}
+                    >
+                      {actionInProgress === poll.id ? 'Processing...' : poll.isActive ? 'Pause' : 'Activate'}
+                    </button>
+                    <button 
+                      className="delete-button"
+                      onClick={(e) => this.handleDeletePoll(e, poll.id)}
+                      disabled={actionInProgress === poll.id}
+                    >
+                      {actionInProgress === poll.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
