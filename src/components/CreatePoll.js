@@ -249,14 +249,14 @@ class CreatePoll extends Component {
             <button
               type="button"
               onClick={this.handleBackToDashboard}
-              className="secondary-btn"
+              className="back-button"
             >
               Cancel
             </button>
             
             <button
               type="submit"
-              className="primary-btn"
+              className="create-button"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Creating Poll...' : 'Create Poll'}

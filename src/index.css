@@ -423,83 +423,158 @@ body {
 /* Create Poll */
 .create-poll-container {
   border: 2px solid black;
-  border-radius: 5px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 30px;
   margin-bottom: 30px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .create-poll-container h2 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.create-poll-form {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.question-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid black;
-  border-radius: 4px;
-  font-size: 1rem;
-  margin-bottom: 15px;
-}
-
-.option-input-group {
-  display: flex;
   margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
 }
 
 .option-input {
   flex-grow: 1;
-  padding: 8px;
-  border: 1px solid black;
+  padding: 12px;
+  border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.option-input:focus {
+  border-color: black;
+  outline: none;
 }
 
 .remove-option-btn {
-  background-color: white;
-  border: 1px solid #ff0000;
-  color: #ff0000;
-  width: 30px;
-  margin-left: 5px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.add-option-btn {
-  background-color: white;
-  color: black;
-  border: 1px solid black;
-  padding: 8px 15px;
-  cursor: pointer;
-  margin-top: 10px;
-  border-radius: 4px;
-}
-
-.create-poll-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: black;
+  background-color: #f44336;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
+  padding: 10px 15px;
   cursor: pointer;
-  margin-top: 20px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
 }
 
-.create-poll-btn:disabled {
+.remove-option-btn:hover {
+  background-color: #d32f2f;
+}
+
+.add-option-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  transition: background-color 0.3s;
+}
+
+.add-option-btn:hover {
+  background-color: #388e3c;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 15px;
+}
+
+.form-actions button {
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 120px;
+}
+
+.back-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+}
+
+.create-button {
+  background-color: black;
+  color: white;
+  border: none;
+}
+
+.create-button:hover {
+  background-color: #333;
+}
+
+.create-button:disabled {
   background-color: #888;
   cursor: not-allowed;
+}
+
+.scheduling-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.scheduling-options {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.schedule-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.schedule-field {
+  flex: 1;
+  min-width: 250px;
+}
+
+.field-help {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
 }
 
 /* Join Poll */
