@@ -27,31 +27,35 @@ class PollResults extends Component {
 
         {results.map(option => {
           const percentage = this.calculatePercentage(option.votes, totalVotes);
+          const voteText = `${option.votes} vote${option.votes !== 1 ? 's' : ''} (${percentage}%)`;
           
           return (
             <div key={option.id}>
               <div className="result-label">
                 <span>{option.text}</span>
-                <span>{option.votes} votes ({percentage}%)</span>
+                <span>{voteText}</span>
               </div>
               <div className="result-bar-container">
                 <div 
                   className="result-bar" 
-                  style={{ width: `${percentage}%` }}
+                  style={{ width: `${percentage || 3}%` }}
+                  data-text={percentage > 10 ? voteText : ''}
                 ></div>
               </div>
             </div>
           );
         })}
 
-        <div className="total-votes">Total votes: {totalVotes}</div>
+        <div className="total-votes">
+          <strong>Total votes:</strong> {totalVotes}
+        </div>
         
         <button 
           className="refresh-button" 
           onClick={onRefresh}
           disabled={isLoading}
         >
-          Refresh Results
+          {isLoading ? 'Refreshing...' : 'Refresh Results'}
         </button>
       </div>
     );

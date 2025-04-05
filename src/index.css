@@ -233,36 +233,83 @@ body {
 /* Results Component */
 .results-container {
   margin-top: 30px;
-  border: 2px solid black;
-  border-radius: 5px;
-  padding: 20px;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .results-title {
   font-size: 1.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   text-align: center;
-}
-
-.result-bar-container {
-  height: 30px;
-  background-color: #f0f0f0;
-  border: 1px solid black;
-  border-radius: 4px;
-  margin-bottom: 5px;
-}
-
-.result-bar {
-  height: 100%;
-  background-color: black;
-  border-radius: 3px;
-  transition: width 0.5s ease;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+  font-weight: 600;
 }
 
 .result-label {
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 15px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.result-label span:first-child {
+  font-weight: 500;
+  padding-right: 15px;
+}
+
+.result-label span:last-child {
+  font-size: 14px;
+  background-color: #f7f7f7;
+  padding: 6px 12px;
+  border-radius: 50px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.result-bar-container {
+  height: 36px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.result-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #8bc34a);
+  border-radius: 7px;
+  transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 15px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.result-bar::after {
+  content: attr(data-text);
+  position: absolute;
+  right: 15px;
+  color: white;
+  font-size: 14px;
+  letter-spacing: 0.5px;
 }
 
 .loading {
@@ -281,25 +328,43 @@ body {
 }
 
 .refresh-button {
-  background-color: white;
-  color: black;
-  border: 1px solid black;
-  padding: 8px 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
   margin-top: 15px;
   cursor: pointer;
   display: block;
   margin-left: auto;
   border-radius: 4px;
+  transition: all 0.3s;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  animation: fadeIn 0.7s ease-out;
 }
 
 .refresh-button:hover {
-  background-color: #f0f0f0;
+  background-color: #388e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.refresh-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 3px rgba(0,0,0,0.1);
 }
 
 .total-votes {
   text-align: right;
   font-style: italic;
-  margin-top: 10px;
+  margin: 25px 0;
+  background-color: #f9f9f9;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border-left: 4px solid #4caf50;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  animation: fadeIn 0.6s ease-out;
 }
 
 .poll-status {
@@ -1115,4 +1180,15 @@ button:disabled {
     margin: 20px;
     padding: 20px;
   }
+}
+
+/* Animations for poll results */
+@keyframes barGrow {
+  from { width: 0; }
+  to { width: attr(data-width); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
