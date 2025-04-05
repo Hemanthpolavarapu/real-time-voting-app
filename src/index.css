@@ -587,25 +587,19 @@ body {
   .app-nav {
     flex-direction: column;
     gap: 10px;
-    align-items: center;
   }
   
   .user-section {
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #eee;
-    flex-wrap: wrap;
-    gap: 8px;
   }
   
   .user-info {
-    text-align: center;
-  }
-  
-  .logout-button {
-    margin: 0 auto;
+    margin-top: 10px;
+    align-self: flex-end;
   }
   
   .user-polls-list {

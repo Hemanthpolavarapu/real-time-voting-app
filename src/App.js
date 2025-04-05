@@ -180,7 +180,7 @@ class App extends Component {
       currentMode: APP_MODES.VIEW_POLL,
       activePoll: poll,
       results: poll.results,
-      showResults: true, // Creator can see results immediately
+      showResults: true, // Creator can see results immediately but not as "voted"
       lastUpdated: new Date()
     });
     
@@ -200,16 +200,15 @@ class App extends Component {
     // Join the new poll's socket room for real-time updates
     joinPoll(poll.id);
     
-    // Check if user has already voted on this poll or is the creator
+    // Check if user has already voted on this poll
     const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '{}');
     const hasVoted = votedPolls[poll.id] === true;
-    const isCreator = poll.createdBy === this.state.username;
     
     this.setState({
       currentMode: APP_MODES.VIEW_POLL,
       activePoll: poll,
       results: poll.results,
-      showResults: hasVoted || isCreator, // Show results if already voted or is creator
+      showResults: hasVoted || poll.createdBy === this.state.username, // Show results if already voted or is creator
       lastUpdated: new Date()
     });
     
@@ -221,9 +220,21 @@ class App extends Component {
 
   // Handle user logout
   handleLogout = () => {
+    console.log("Logging out user:", this.state.username);
+    
+    // Leave any active poll socket rooms
+    if (this.state.activePoll) {
+      leavePoll(this.state.activePoll.id);
+    }
+    
     // Remove all user data from local storage
     localStorage.removeItem('votingAppUsername');
     localStorage.removeItem('votedPolls');
+    
+    // Disconnect socket and reconnect later
+    if (socket.connected) {
+      socket.disconnect();
+    }
     
     // Reset state completely
     this.setState({
@@ -242,6 +253,15 @@ class App extends Component {
     const url = new URL(window.location);
     url.search = '';
     window.history.pushState({}, '', url);
+    
+    // Reconnect socket after logout is complete
+    setTimeout(() => {
+      if (!socket.connected) {
+        socket.connect();
+      }
+    }, 500);
+    
+    console.log("Logout complete");
   };
 
   // Navigate to different app modes

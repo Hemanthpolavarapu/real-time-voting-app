@@ -63,13 +63,13 @@ export const fetchPoll = async (pollId) => {
  * @param {string} pollData.createdBy - Username of poll creator
  */
 export const createPoll = async (pollData) => {
-  let retries = 2; // Number of retries
+  let retries = 3; // Increase number of retries
+  let delay = 1000; // Start with 1s delay, will increase with each retry
   
   while (retries >= 0) {
     try {
       console.log(`Attempting to create poll. Retries left: ${retries}`);
       console.log('Poll data:', pollData);
-      console.log('API URL:', `${API_URL}/polls`);
       
       const response = await fetch(`${API_URL}/polls`, {
         method: 'POST',
@@ -78,20 +78,34 @@ export const createPoll = async (pollData) => {
           'Accept': 'application/json'
         },
         body: JSON.stringify(pollData),
+        // Add timeout to prevent hanging requests
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
       
       // Log response information for debugging
       console.log('Response status:', response.status);
-      console.log('Response OK:', response.ok);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Error response:', errorData);
+        // Try to parse error JSON but don't fail if not possible
+        let errorMessage = `Failed to create poll: ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          
+          if (errorData && errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (jsonError) {
+          console.error('Could not parse error JSON', jsonError);
+        }
         
         if (response.status === 500) {
-          throw new Error('Server error. This may be temporary, please try again.');
+          throw new Error('Server is experiencing issues. Please try again in a moment.');
+        } else if (response.status === 429) {
+          throw new Error('Too many requests. Please wait a moment and try again.');
         } else {
-          throw new Error(`Failed to create poll: ${response.status} - ${errorData.error || 'Unknown error'}`);
+          throw new Error(errorMessage);
         }
       }
       
@@ -102,15 +116,34 @@ export const createPoll = async (pollData) => {
     } catch (error) {
       console.error('Error creating poll:', error);
       
-      // If network error and we have retries left, try again
-      if ((error.name === 'TypeError' || error.message.includes('fetch')) && retries > 0) {
+      // Specific error handling
+      if (error.name === 'AbortError') {
+        console.log('Request timed out');
+        if (retries > 0) {
+          retries--;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 1.5; // Increase delay with each retry
+          continue;
+        } else {
+          throw new Error('Request timed out. Please check your internet connection.');
+        }
+      }
+      
+      // Network errors or fetch problems
+      if ((error.name === 'TypeError' || error.message.includes('fetch') || 
+           error.message.includes('network') || error.message.includes('connection')) && retries > 0) {
         retries--;
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 1.5; // Increase delay with each retry
         continue;
       }
       
-      // No more retries or not a network error, throw the error
-      throw error;
+      // No more retries or not a retryable error
+      if (retries === 0) {
+        throw new Error('Could not connect to the server after multiple attempts. Please try again later.');
+      } else {
+        throw error;
+      }
     }
   }
 };

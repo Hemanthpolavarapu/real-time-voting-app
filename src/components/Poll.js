@@ -6,12 +6,18 @@ class Poll extends Component {
     selectedOption: null,
     isVoting: false,
     error: null,
-    localHasVoted: false
+    localHasVoted: false,
+    userHasActuallyVoted: false
   };
 
   componentDidMount() {
     // Set local voting state based on props
     this.setState({ localHasVoted: this.props.hasVoted });
+    
+    // Check if user has actually voted on this poll
+    const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '{}');
+    const userHasActuallyVoted = votedPolls[this.props.pollId] === true;
+    this.setState({ userHasActuallyVoted });
   }
 
   componentDidUpdate(prevProps) {
@@ -44,7 +50,10 @@ class Poll extends Component {
       const result = await submitVote(pollId, selectedOption, username);
       
       // Mark as voted in state
-      this.setState({ localHasVoted: true });
+      this.setState({ 
+        localHasVoted: true,
+        userHasActuallyVoted: true
+      });
       
       // Invoke the callback provided by parent component with the voting result
       onVoteSubmit(result);
@@ -60,7 +69,7 @@ class Poll extends Component {
 
   render() {
     const { question, options } = this.props;
-    const { selectedOption, isVoting, error, localHasVoted } = this.state;
+    const { selectedOption, isVoting, error, localHasVoted, userHasActuallyVoted } = this.state;
     
     // Use either local state or props to determine if user has voted
     const hasVoted = localHasVoted || this.props.hasVoted;
@@ -69,7 +78,8 @@ class Poll extends Component {
       <div className="poll-container">
         <h2 className="poll-question">{question}</h2>
         
-        {!hasVoted ? (
+        {/* Only show voting form if NOT already voted */}
+        {!userHasActuallyVoted ? (
           <>
             <div className="poll-options">
               {options.map(option => (
