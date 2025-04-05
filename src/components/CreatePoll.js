@@ -187,7 +187,7 @@ class CreatePoll extends Component {
                   onClick={() => this.handleRemoveOption(index)}
                   className="remove-option-btn"
                 >
-                  Remove
+                  X
                 </button>
               </div>
             ))}
