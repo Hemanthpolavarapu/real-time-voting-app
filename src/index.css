@@ -730,3 +730,325 @@ body {
   margin-bottom: 10px;
   text-align: center;
 }
+
+/* Auth Components Styles */
+.home-page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 40px 0;
+  margin-bottom: 40px;
+}
+
+.hero-image {
+  margin: 30px auto;
+  max-width: 400px;
+}
+
+.hero-image img {
+  width: 100%;
+  height: auto;
+}
+
+.app-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #555;
+}
+
+.auth-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.auth-button {
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-button {
+  background-color: white;
+  border: 2px solid black;
+  color: black;
+}
+
+.login-button:hover {
+  background-color: #f0f0f0;
+}
+
+.register-button {
+  background-color: black;
+  border: 2px solid black;
+  color: white;
+}
+
+.register-button:hover {
+  background-color: #333;
+}
+
+.features-section {
+  padding: 40px 0;
+}
+
+.features-section h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.home-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  color: #777;
+}
+
+/* Auth Container */
+.auth-container {
+  max-width: 450px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.auth-subtitle {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #555;
+}
+
+.auth-form {
+  margin-bottom: 20px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  border-color: black;
+  outline: none;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-submit-btn:hover {
+  background-color: #333;
+}
+
+.auth-submit-btn:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+.auth-alternate {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.auth-link-btn {
+  background: none;
+  border: none;
+  color: #0066cc;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: underline;
+  margin-left: 5px;
+}
+
+.auth-link-btn:hover {
+  color: #004499;
+}
+
+/* Dashboard Styles */
+.dashboard-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.create-poll-button {
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.create-poll-button:hover {
+  background-color: #333;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+.stat-card p {
+  color: #666;
+}
+
+.user-polls-section {
+  margin-top: 30px;
+}
+
+.user-polls-section h3 {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.user-polls-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.poll-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.poll-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.poll-card h4 {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.poll-meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .auth-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .user-polls-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .auth-container {
+    margin: 20px;
+    padding: 20px;
+  }
+}

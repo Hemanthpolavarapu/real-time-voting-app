@@ -5,14 +5,20 @@ import UserLogin from './components/UserLogin';
 import CreatePoll from './components/CreatePoll';
 import JoinPoll from './components/JoinPoll';
 import SharePoll from './components/SharePoll';
+import HomePage from './components/HomePage';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
 import socket, { joinPoll, leavePoll } from './utils/socket';
 import { fetchPolls, fetchPollResults } from './utils/api';
 import './App.css';
 
 // App modes
 const APP_MODES = {
-  LOGIN: 'login',
-  HOME: 'home',
+  HOME: 'home',          // Landing page
+  LOGIN: 'login',        // Login page
+  REGISTER: 'register',  // Register page
+  DASHBOARD: 'dashboard',// User dashboard
   CREATE_POLL: 'create_poll',
   JOIN_POLL: 'join_poll',
   VIEW_POLL: 'view_poll'
@@ -21,7 +27,8 @@ const APP_MODES = {
 class App extends Component {
   state = {
     username: '',
-    currentMode: APP_MODES.LOGIN,
+    isAuthenticated: false,
+    currentMode: APP_MODES.HOME,
     activePoll: null,
     results: [],
     isLoading: false,
@@ -35,17 +42,26 @@ class App extends Component {
     // Check if user is already logged in
     const savedUsername = localStorage.getItem('votingAppUsername');
     if (savedUsername) {
-      this.setState({ username: savedUsername });
-      this.handleLogin(savedUsername, false); // false = don't save again
+      this.setState({ 
+        username: savedUsername,
+        isAuthenticated: true,
+        currentMode: APP_MODES.DASHBOARD
+      });
+      
+      // Load user's polls
+      this.loadUserPolls(savedUsername);
     }
     
     // Check URL for poll parameter
     const urlParams = new URLSearchParams(window.location.search);
     const pollId = urlParams.get('poll');
     
-    if (pollId) {
-      // If poll ID is in URL, set mode to join poll
+    if (pollId && savedUsername) {
+      // If poll ID is in URL and user is logged in, go to join poll
       this.setState({ currentMode: APP_MODES.JOIN_POLL });
+    } else if (pollId) {
+      // If poll ID in URL but no login, go to login first
+      this.setState({ currentMode: APP_MODES.LOGIN });
     }
 
     // Set up socket event listeners
@@ -90,17 +106,38 @@ class App extends Component {
   };
 
   // Method to handle user login
-  handleLogin = (username, shouldSave = true) => {
-    if (shouldSave) {
-      localStorage.setItem('votingAppUsername', username);
-    }
+  handleLogin = (username) => {
+    localStorage.setItem('votingAppUsername', username);
     
     this.setState({
       username,
-      currentMode: APP_MODES.HOME
+      isAuthenticated: true,
+      currentMode: APP_MODES.DASHBOARD
     });
     
     // Load user's polls
+    this.loadUserPolls(username);
+    
+    // Check URL for poll parameter to join after login
+    const urlParams = new URLSearchParams(window.location.search);
+    const pollId = urlParams.get('poll');
+    
+    if (pollId) {
+      this.setState({ currentMode: APP_MODES.JOIN_POLL });
+    }
+  };
+  
+  // Method to handle user registration
+  handleRegister = (username) => {
+    localStorage.setItem('votingAppUsername', username);
+    
+    this.setState({
+      username,
+      isAuthenticated: true,
+      currentMode: APP_MODES.DASHBOARD
+    });
+    
+    // Load user's polls (will be empty for new user)
     this.loadUserPolls(username);
   };
 
@@ -239,7 +276,8 @@ class App extends Component {
     // Reset state completely
     this.setState({
       username: '',
-      currentMode: APP_MODES.LOGIN,
+      isAuthenticated: false,
+      currentMode: APP_MODES.HOME,
       activePoll: null,
       userPolls: [],
       results: [],
@@ -290,6 +328,7 @@ class App extends Component {
   render() {
     const { 
       username, 
+      isAuthenticated,
       currentMode, 
       activePoll, 
       results, 
@@ -299,130 +338,133 @@ class App extends Component {
       showResults 
     } = this.state;
 
-    // If not logged in, show login screen
-    if (currentMode === APP_MODES.LOGIN) {
-      return <UserLogin onLogin={this.handleLogin} />;
-    }
-
-    return (
-      <div className="app-container">
-        <h1 className="app-title">Real-Time Polling App</h1>
+    // Render different content based on mode
+    switch (currentMode) {
+      case APP_MODES.HOME:
+        return <HomePage onNavigate={this.navigateTo} />;
+      
+      case APP_MODES.LOGIN:
+        return <Login onLogin={this.handleLogin} onNavigate={this.navigateTo} />;
+      
+      case APP_MODES.REGISTER:
+        return <Register onRegister={this.handleRegister} onNavigate={this.navigateTo} />;
+      
+      case APP_MODES.DASHBOARD:
+        return (
+          <Dashboard 
+            username={username} 
+            userPolls={userPolls}
+            onNavigate={this.navigateTo} 
+            onJoinPoll={this.handleJoinPoll}
+            onLogout={this.handleLogout}
+          />
+        );
         
-        {/* Navigation */}
-        <div className="app-nav">
-          <button 
-            className={`nav-button ${currentMode === APP_MODES.HOME ? 'active' : ''}`}
-            onClick={() => this.navigateTo(APP_MODES.HOME)}
-          >
-            Home
-          </button>
-          <button 
-            className={`nav-button ${currentMode === APP_MODES.CREATE_POLL ? 'active' : ''}`}
-            onClick={() => this.navigateTo(APP_MODES.CREATE_POLL)}
-          >
-            Create Poll
-          </button>
-          <button 
-            className={`nav-button ${currentMode === APP_MODES.JOIN_POLL ? 'active' : ''}`}
-            onClick={() => this.navigateTo(APP_MODES.JOIN_POLL)}
-          >
-            Join Poll
-          </button>
-          <div className="user-section">
-            <span className="user-info">Logged in as: {username}</span>
-            <button 
-              className="logout-button"
-              onClick={this.handleLogout}
-            >
-              Logout
-            </button>
+      case APP_MODES.JOIN_POLL:
+        // Redirect to login if trying to join poll without being logged in
+        if (!isAuthenticated) {
+          return <Login onLogin={this.handleLogin} onNavigate={this.navigateTo} />;
+        }
+        return <JoinPoll onJoinPoll={this.handleJoinPoll} />;
+      
+      case APP_MODES.CREATE_POLL:
+        // Redirect to login if trying to create poll without being logged in
+        if (!isAuthenticated) {
+          return <Login onLogin={this.handleLogin} onNavigate={this.navigateTo} />;
+        }
+        return (
+          <div className="app-container">
+            <h1 className="app-title">Real-Time Polling App</h1>
+            
+            <div className="app-nav">
+              <button 
+                className="nav-button"
+                onClick={() => this.navigateTo(APP_MODES.DASHBOARD)}
+              >
+                Back to Dashboard
+              </button>
+              
+              <div className="user-section">
+                <span className="user-info">Logged in as: {username}</span>
+                <button 
+                  className="logout-button"
+                  onClick={this.handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+            
+            <CreatePoll 
+              username={username} 
+              onPollCreated={this.handlePollCreated} 
+            />
           </div>
-        </div>
-        
-        {/* Error display for main app errors */}
-        {error && <div className="error-message">{error}</div>}
-        
-        {/* Home screen */}
-        {currentMode === APP_MODES.HOME && (
-          <div className="home-container">
-            <h2>Your Polls</h2>
-            {isLoading ? (
-              <div className="loading">Loading your polls...</div>
-            ) : (
-              <>
-                {userPolls.length === 0 ? (
-                  <div className="no-polls">
-                    <p>You haven't created any polls yet.</p>
-                    <button 
-                      className="create-first-poll-button"
-                      onClick={() => this.navigateTo(APP_MODES.CREATE_POLL)}
-                    >
-                      Create your first poll
-                    </button>
-                  </div>
-                ) : (
-                  <div className="user-polls-list">
-                    {userPolls.map(poll => (
-                      <div 
-                        key={poll.id} 
-                        className="poll-item"
-                        onClick={() => this.handleJoinPoll(poll)}
-                      >
-                        <h3>{poll.question}</h3>
-                        <p>Created: {new Date(poll.createdAt).toLocaleDateString()}</p>
-                        <p>Options: {poll.options.length}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
+        );
+      
+      case APP_MODES.VIEW_POLL:
+        // Redirect to login if trying to view poll without being logged in
+        if (!isAuthenticated) {
+          return <Login onLogin={this.handleLogin} onNavigate={this.navigateTo} />;
+        }
+        return (
+          <div className="app-container">
+            <h1 className="app-title">Real-Time Polling App</h1>
+            
+            <div className="app-nav">
+              <button 
+                className="nav-button"
+                onClick={() => this.navigateTo(APP_MODES.DASHBOARD)}
+              >
+                Back to Dashboard
+              </button>
+              
+              <div className="user-section">
+                <span className="user-info">Logged in as: {username}</span>
+                <button 
+                  className="logout-button"
+                  onClick={this.handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+            
+            {error && <div className="error-message">{error}</div>}
+            
+            {activePoll && (
+              <div className="view-poll-container">
+                <Poll
+                  pollId={activePoll.id}
+                  question={activePoll.question}
+                  options={activePoll.options}
+                  onVoteSubmit={this.handleVoteSubmit}
+                  username={username}
+                  hasVoted={showResults}
+                />
+                
+                <PollResults
+                  results={results}
+                  isLoading={isLoading}
+                  error={error}
+                  onRefresh={this.fetchPollResults}
+                  showResults={showResults}
+                />
+                
+                <SharePoll pollId={activePoll.id} username={username} />
+                
+                <div className="poll-status">
+                  <span>Last updated: {this.formatLastUpdated()}</span>
+                  <span>(Updates automatically in real-time)</span>
+                </div>
+              </div>
             )}
           </div>
-        )}
-        
-        {/* Create Poll screen */}
-        {currentMode === APP_MODES.CREATE_POLL && (
-          <CreatePoll 
-            username={username} 
-            onPollCreated={this.handlePollCreated} 
-          />
-        )}
-        
-        {/* Join Poll screen */}
-        {currentMode === APP_MODES.JOIN_POLL && (
-          <JoinPoll onJoinPoll={this.handleJoinPoll} />
-        )}
-        
-        {/* View Poll screen */}
-        {currentMode === APP_MODES.VIEW_POLL && activePoll && (
-          <div className="view-poll-container">
-            <Poll
-              pollId={activePoll.id}
-              question={activePoll.question}
-              options={activePoll.options}
-              onVoteSubmit={this.handleVoteSubmit}
-              username={username}
-              hasVoted={showResults}
-            />
-            
-            <PollResults
-              results={results}
-              isLoading={isLoading}
-              error={error}
-              onRefresh={this.fetchPollResults}
-              showResults={showResults}
-            />
-            
-            <SharePoll pollId={activePoll.id} username={username} />
-            
-            <div className="poll-status">
-              <span>Last updated: {this.formatLastUpdated()}</span>
-              <span>(Updates automatically in real-time)</span>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+        );
+      
+      default:
+        return <HomePage onNavigate={this.navigateTo} />;
+    }
   }
 }
 
