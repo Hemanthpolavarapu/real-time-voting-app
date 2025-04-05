@@ -6,16 +6,18 @@ class Poll extends Component {
     selectedOption: null,
     isVoting: false,
     error: null,
-    hasVoted: false
+    localHasVoted: false
   };
 
   componentDidMount() {
-    // Check if user has already voted on this poll
-    const { pollId, username } = this.props;
-    const votedPolls = JSON.parse(localStorage.getItem(`${username}_votedPolls`) || '[]');
-    
-    if (votedPolls.includes(pollId)) {
-      this.setState({ hasVoted: true });
+    // Set local voting state based on props
+    this.setState({ localHasVoted: this.props.hasVoted });
+  }
+
+  componentDidUpdate(prevProps) {
+    // Update local state if the hasVoted prop changes
+    if (prevProps.hasVoted !== this.props.hasVoted) {
+      this.setState({ localHasVoted: this.props.hasVoted });
     }
   }
 
@@ -31,6 +33,7 @@ class Poll extends Component {
     
     // Validate that an option is selected
     if (!selectedOption) {
+      this.setState({ error: 'Please select an option to vote' });
       return;
     }
 
@@ -40,13 +43,8 @@ class Poll extends Component {
       // Submit vote to API
       const result = await submitVote(pollId, selectedOption, username);
       
-      // Record that this user has voted on this poll in localStorage
-      const votedPolls = JSON.parse(localStorage.getItem(`${username}_votedPolls`) || '[]');
-      votedPolls.push(pollId);
-      localStorage.setItem(`${username}_votedPolls`, JSON.stringify(votedPolls));
-      
       // Mark as voted in state
-      this.setState({ hasVoted: true });
+      this.setState({ localHasVoted: true });
       
       // Invoke the callback provided by parent component with the voting result
       onVoteSubmit(result);
@@ -62,7 +60,10 @@ class Poll extends Component {
 
   render() {
     const { question, options } = this.props;
-    const { selectedOption, isVoting, error, hasVoted } = this.state;
+    const { selectedOption, isVoting, error, localHasVoted } = this.state;
+    
+    // Use either local state or props to determine if user has voted
+    const hasVoted = localHasVoted || this.props.hasVoted;
 
     return (
       <div className="poll-container">
@@ -77,7 +78,10 @@ class Poll extends Component {
                   className={`poll-option ${selectedOption === option.id ? 'selected' : ''}`}
                   onClick={() => this.handleOptionSelect(option.id)}
                 >
-                  {option.text}
+                  <div className="option-selector">
+                    <span className="option-checkbox"></span>
+                    <span className="option-text">{option.text}</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -94,7 +98,8 @@ class Poll extends Component {
           </>
         ) : (
           <div className="voted-message">
-            Thank you for voting! View the results below.
+            <div className="voted-check">✓</div>
+            <p>Thank you for voting! View the results below.</p>
           </div>
         )}
       </div>

@@ -32,6 +32,13 @@ class App extends Component {
   };
 
   componentDidMount() {
+    // Check if user is already logged in
+    const savedUsername = localStorage.getItem('votingAppUsername');
+    if (savedUsername) {
+      this.setState({ username: savedUsername });
+      this.handleLogin(savedUsername, false); // false = don't save again
+    }
+    
     // Check URL for poll parameter
     const urlParams = new URLSearchParams(window.location.search);
     const pollId = urlParams.get('poll');
@@ -83,7 +90,11 @@ class App extends Component {
   };
 
   // Method to handle user login
-  handleLogin = (username) => {
+  handleLogin = (username, shouldSave = true) => {
+    if (shouldSave) {
+      localStorage.setItem('votingAppUsername', username);
+    }
+    
     this.setState({
       username,
       currentMode: APP_MODES.HOME
@@ -144,6 +155,13 @@ class App extends Component {
     // Mark as voted to show results
     this.setState({ showResults: true });
     
+    // Save that this user has voted on this poll
+    if (this.state.activePoll) {
+      const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '{}');
+      votedPolls[this.state.activePoll.id] = true;
+      localStorage.setItem('votedPolls', JSON.stringify(votedPolls));
+    }
+    
     // Update results with the ones returned from API
     if (voteResult && voteResult.results) {
       this.setState({
@@ -182,11 +200,15 @@ class App extends Component {
     // Join the new poll's socket room for real-time updates
     joinPoll(poll.id);
     
+    // Check if user has already voted on this poll
+    const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '{}');
+    const hasVoted = votedPolls[poll.id] === true;
+    
     this.setState({
       currentMode: APP_MODES.VIEW_POLL,
       activePoll: poll,
       results: poll.results,
-      showResults: false, // Don't show results until voted
+      showResults: hasVoted, // Show results if already voted
       lastUpdated: new Date()
     });
     
@@ -194,6 +216,20 @@ class App extends Component {
     const url = new URL(window.location);
     url.searchParams.set('poll', poll.id);
     window.history.pushState({}, '', url);
+  };
+
+  // Handle user logout
+  handleLogout = () => {
+    // Remove user from local storage
+    localStorage.removeItem('votingAppUsername');
+    
+    // Reset state
+    this.setState({
+      username: '',
+      currentMode: APP_MODES.LOGIN,
+      activePoll: null,
+      userPolls: []
+    });
   };
 
   // Navigate to different app modes
@@ -205,10 +241,10 @@ class App extends Component {
     
     this.setState({ currentMode: mode });
     
-    // If going home, clear the URL parameters
+    // If going home, clear the poll from URL
     if (mode === APP_MODES.HOME) {
       const url = new URL(window.location);
-      url.search = '';
+      url.searchParams.delete('poll');
       window.history.pushState({}, '', url);
     }
   };
@@ -260,7 +296,15 @@ class App extends Component {
           >
             Join Poll
           </button>
-          <span className="user-info">Logged in as: {username}</span>
+          <div className="user-section">
+            <span className="user-info">Logged in as: {username}</span>
+            <button 
+              className="logout-button"
+              onClick={this.handleLogout}
+            >
+              Logout
+            </button>
+          </div>
         </div>
         
         {/* Error display for main app errors */}
@@ -275,7 +319,15 @@ class App extends Component {
             ) : (
               <>
                 {userPolls.length === 0 ? (
-                  <p>You haven't created any polls yet. Create your first poll!</p>
+                  <div className="no-polls">
+                    <p>You haven't created any polls yet.</p>
+                    <button 
+                      className="create-first-poll-button"
+                      onClick={() => this.navigateTo(APP_MODES.CREATE_POLL)}
+                    >
+                      Create your first poll
+                    </button>
+                  </div>
                 ) : (
                   <div className="user-polls-list">
                     {userPolls.map(poll => (
@@ -318,6 +370,7 @@ class App extends Component {
               options={activePoll.options}
               onVoteSubmit={this.handleVoteSubmit}
               username={username}
+              hasVoted={showResults}
             />
             
             <PollResults
@@ -328,7 +381,7 @@ class App extends Component {
               showResults={showResults}
             />
             
-            <SharePoll pollId={activePoll.id} />
+            <SharePoll pollId={activePoll.id} username={username} />
             
             <div className="poll-status">
               <span>Last updated: {this.formatLastUpdated()}</span>
